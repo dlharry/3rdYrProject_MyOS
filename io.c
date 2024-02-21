@@ -43,6 +43,7 @@ void uart_writeByteBlockingActual(unsigned char ch){
     mmio_write(AUX_MU_IO_REG, (unsigned int)ch);
 }
 
+// gpio
 unsigned int gpio_call(unsigned int pin_number, unsigned int value, unsigned int base, unsigned int field_size, unsigned int field_max) {
     unsigned int field_mask = (1 << field_size) - 1;
   
@@ -61,9 +62,11 @@ unsigned int gpio_call(unsigned int pin_number, unsigned int value, unsigned int
     return 1;
 }
 
+// set a pin high
 unsigned int gpio_set     (unsigned int pin_number, unsigned int value) {
     return gpio_call(pin_number, value, GPSET0, 1, GPIO_MAX_PIN); 
 }
+// set a pin low
 unsigned int gpio_clear   (unsigned int pin_number, unsigned int value) {
     return gpio_call(pin_number, value, GPCLR0, 1, GPIO_MAX_PIN); 
 }
@@ -79,6 +82,7 @@ void gpio_useAsAlt5(unsigned int pin_number) {
     gpio_function(pin_number, GPIO_FUNCTION_ALT5);
 }
 
+// header
 void uart_init(){
     mmio_write(AUX_ENABLES, 1); //enable UART1
     mmio_write(AUX_MU_IER_REG, 0);
