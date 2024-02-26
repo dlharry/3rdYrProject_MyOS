@@ -1,19 +1,49 @@
-CFILES = $(wildcard *.c)
-OFILES = $(CFILES:.c=.o)
-GCCFLAGS = -Wall -O2 -ffreestanding -nostdinc -nostdlib -nostartfiles
-GCCPATH = ~/gcc-arm-10.3-2021.07-x86_64-aarch64-none-elf/bin
+RPI_VERSION ?= 4
 
-all: clean kernel8.img
+BOOTMNT ?= /media/dlharry/boot
 
-boot.o: boot.S
-	$(GCCPATH)/aarch64-none-elf-gcc $(GCCFLAGS) -c boot.S -o boot.o
+ARMGNU ?= aarch64-linux-gnu
 
-%.o: %.c
-	$(GCCPATH)/aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
+COPS = -DRPI_VERSION=$(RPI_VERSION) -Wall -nostdlib -nostartfiles -ffreestanding \
+	   -Iinclude -mgeneral-regs-only
 
-kernel8.img: boot.o $(OFILES)
-	$(GCCPATH)/aarch64-none-elf-ld -nostdlib boot.o $(OFILES) -T link.ld -o kernel8.elf
-	$(GCCPATH)/aarch64-none-elf-objcopy -O binary kernel8.elf kernel8.img
+ASMOPS = -Iinclude
 
-clean:
-	/bin/rm kernel8.elf *.o *.img > /dev/null 2> /dev/null || true
+BUILD_DIR = build
+SRC_DIR = src
+
+all : kernel8.img
+
+clean :
+	rm -rf $(BUILD_DIR) *.img 
+
+$(BUILD_DIR)/%_c.o: $(SRC_DIR)/%.c
+	mkdir -p $(@D)
+	$(ARMGNU)-gcc $(COPS) -MMD -c $< -o $@
+
+$(BUILD_DIR)/%_s.o: $(SRC_DIR)/%.S
+	mkdir -p $(@D)
+	$(ARMGNU)-gcc $(COPS) -MMD -c $< -o $@
+
+C_FILES = $(wildcard $(SRC_DIR)/*.c)
+ASM_FILES = $(wildcard $(SRC_DIR)/*.S)
+OBJ_FILES = $(C_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%_c.o)
+OBJ_FILES += $(ASM_FILES:$(SRC_DIR)/%.S=$(BUILD_DIR)/%_s.o)
+
+DEP_FILES = $(OBJ_FILES:%.o=%.d)
+-include $(DEP_FILES)
+
+kernel8.img: $(SRC_DIR)/linker.ld $(OBJ_FILES)
+	@echo "build for rpi$(value RPI_VERSION)"
+	@echo "Deploy to $(value BOOTMNT)"
+	@echo ""
+	$(ARMGNU)-ld -T $(SRC_DIR)/linker.ld -o $(BUILD_DIR)/kernel8.elf $(OBJ_FILES)
+	$(ARMGNU)-objcopy $(BUILD_DIR)/kernel8.elf -O binary kernel8.img
+
+ifeq ($(RPI_VERSION), 4)
+	cp kernel8.img $(BOOTMNT)/kernel8-rpi4.img
+else
+	cp kernel8.img $(BOOTMNT)/
+endif
+	cp config.txt $(BOOTMNT)/
+	sync
