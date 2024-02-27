@@ -1,6 +1,7 @@
 #include "common.h"
 #include "mini_uart.h"
 #include "printf.h"
+#include "irq.h"
 
 // To support Kustaa Nyholm's printf
 void putc(void *p, char c){
@@ -18,6 +19,10 @@ void kernel_main(){
     init_printf(0, putc);
     printf("Hello My OS!\n");
 
+    irq_init_vectors();
+    enable_interrupt_controller();
+    irq_enable();
+
 #if RPI_VERSION == 4
     printf("\tRunning on Rpi 4\n");
 #endif
@@ -27,7 +32,7 @@ void kernel_main(){
     printf("\nInitialization Done\n");
 
     while(1){
-        uart_send(uart_recv());
+        // uart_send(uart_recv());
     }
 
 }
