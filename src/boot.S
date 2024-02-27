@@ -1,5 +1,5 @@
 // Written by Hanmin Liu
-// 
+#include "mm.h"
 .section ".text.boot" // put the following code in a section namely
 // linker should put this at the start of the kernal image
 .globl _start // execution starts here

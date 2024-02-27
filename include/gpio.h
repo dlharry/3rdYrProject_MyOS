@@ -1,7 +1,7 @@
 // user gpio functions
 #pragma once
 
-#include "peripherials/gpio.h"
+#include "peripherals/gpio.h"
 
 typedef enum _GpioFunc {
     GFInput = 0,

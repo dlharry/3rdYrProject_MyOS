@@ -1,6 +1,6 @@
 RPI_VERSION ?= 4
 
-BOOTMNT ?= /media/dlharry/boot
+BOOTMNT ?= /media/dlharry/bootfs
 
 ARMGNU ?= aarch64-linux-gnu
 

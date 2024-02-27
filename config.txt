@@ -3,4 +3,4 @@ uart_2ndstage=1
 dtoverlay=miniuart-bt
 
 [pi4]
-kernel=kernel8-rpi.img
+kernel=kernel8-rpi4.img
