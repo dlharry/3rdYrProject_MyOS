@@ -1,7 +1,8 @@
 #include "gpio.h"
 #include "utils.h"
 
-void gpio_pin_set_func(u8 pinNumber, GpioFunc func) {
+void gpio_pin_set_func(u8 pinNumber, GpioFunc func){
+    // figure which pin to select
     u8 bitStart = (pinNumber * 3) % 30;
     u8 reg = pinNumber / 10;
 
@@ -12,7 +13,8 @@ void gpio_pin_set_func(u8 pinNumber, GpioFunc func) {
     REGS_GPIO->func_select[reg] = selector;
 }
 
-void gpio_pin_enable(u8 pinNumber) {
+void gpio_pin_enable(u8 pinNumber){
+    // steps from documentation
     REGS_GPIO->pupd_enable = 0;
     delay(150);
     REGS_GPIO->pupd_enable_clocks[pinNumber / 32] = 1 << (pinNumber % 32);

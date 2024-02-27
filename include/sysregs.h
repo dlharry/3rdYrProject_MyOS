@@ -1,6 +1,6 @@
 #pragma once
 
-//D13.2.113
+//D13.1/2/3.113
 
 #define SCTLR_RESERVED                  (3 << 28) | (3 << 22) | (1 << 20) | (1 << 11)
 #define SCTLR_EE_LITTLE_ENDIAN          (0 << 25)
@@ -29,5 +29,5 @@
 #define SPSR_MASK_ALL                   (7 << 6)
 #define SPSR_EL1h                       (5 << 0)
 #define SPSR_EL2h                       (9 << 0)
+#define SPSR_EL3h                       (13 << 0)
 #define SPSR_VALUE                      (SPSR_MASK_ALL | SPSR_EL1h)
-
