@@ -2,9 +2,8 @@
 #include "mini_uart.h"
 #include "printf.h"
 
-// To support Kustaa Nyholm's printf
-void putc(void *p, char c){
-    if(c == '\n'){
+void putc(void *p, char c) {
+    if (c == '\n') {
         uart_send('\r');
     }
 
@@ -13,21 +12,22 @@ void putc(void *p, char c){
 
 u32 get_el();
 
-void kernel_main(){
+void kernel_main() {
     uart_init();
     init_printf(0, putc);
-    printf("Hello My OS!\n");
+    printf("\nRasperry PI Bare Metal OS Initializing...\n");
 
-#if RPI_VERSION == 4
-    printf("\tRunning on Rpi 4\n");
+#if RPI_VERSION == 3
+    printf("\tBoard: Raspberry PI 3\n");
 #endif
 
-    printf("\nException Level %d\n", get_el());
+#if RPI_VERSION == 4
+    printf("\tBoard: Raspberry PI 4\n");
+#endif
 
-    printf("\nInitialization Done\n");
+    printf("\nException Level: %d\n", get_el());
 
-    while(1){
+    while(1) {
         uart_send(uart_recv());
     }
-
 }

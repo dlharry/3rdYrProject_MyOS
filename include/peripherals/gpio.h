@@ -4,14 +4,12 @@
 
 #include "peripherals/base.h"
 
-struct GpioPinData // general pattern in datasheet
-{
+struct GpioPinData {
     reg32 reserved;
     reg32 data[2];
 };
 
-struct GpioRegs
-{
+struct GpioRegs {
     reg32 func_select[6];
     struct GpioPinData output_set;
     struct GpioPinData output_clear;
@@ -27,6 +25,5 @@ struct GpioRegs
     reg32 pupd_enable;
     reg32 pupd_enable_clocks[2];
 };
-
 
 #define REGS_GPIO ((struct GpioRegs *)(PBASE + 0x00200000))
