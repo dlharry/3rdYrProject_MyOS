@@ -11,6 +11,8 @@ void putc(void *p, char c){
     uart_send(c);
 }
 
+u32 get_el();
+
 void kernel_main(){
     uart_init();
     init_printf(0, putc);
@@ -19,6 +21,8 @@ void kernel_main(){
 #if RPI_VERSION == 4
     printf("\tRunning on Rpi 4\n");
 #endif
+
+    printf("\nException Level %d\n", get_el());
 
     printf("\nInitialization Done\n");
 
