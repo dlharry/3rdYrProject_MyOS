@@ -1,11 +1,5 @@
 #include "entry.h"
 
-.macro ventry label
-.align 7
-    b \label
-.endm
-
-// save registers into stack
 .macro kernel_entry
     sub sp, sp, #S_FRAME_SIZE
     stp x0, x1, [sp, #16 * 0]
@@ -26,7 +20,6 @@
 	str	x30, [sp, #16 * 15] 
 .endm
 
-// load back
 .macro kernel_exit
     ldp x0, x1, [sp, #16 * 0]
     ldp x2, x3, [sp, #16 * 1]
@@ -45,23 +38,28 @@
 	ldp	x28, x29, [sp, #16 * 14]
 	ldr	x30, [sp, #16 * 15] 
 	add	sp, sp, #S_FRAME_SIZE
-    eret // return from exception
+    eret
 .endm
 
 .macro handle_invalid_entry type
 	kernel_entry
-	mov	x0, #\type // passing 3 parameters, 
+	mov	x0, #\type
 	mrs	x1, esr_el1
 	mrs	x2, elr_el1
 	bl	show_invalid_entry_message
 	b	err_hang
 .endm
 
-// from manual, exception vectors table
-.align 11
-.globl vectors
+.macro	ventry	label
+.align	7
+    b	\label
+.endm
+
+//Exception vectors table
+.align	11
+.globl vectors 
 vectors:
-    ventry	sync_invalid_el1t			// Synchronous EL1t
+	ventry	sync_invalid_el1t			// Synchronous EL1t
 	ventry	irq_invalid_el1t			// IRQ EL1t
 	ventry	fiq_invalid_el1t			// FIQ EL1t
 	ventry	error_invalid_el1t			// Error EL1t
@@ -80,6 +78,7 @@ vectors:
 	ventry	irq_invalid_el0_32			// IRQ 32-bit EL0
 	ventry	fiq_invalid_el0_32			// FIQ 32-bit EL0
 	ventry	error_invalid_el0_32		// Error 32-bit EL0
+
 
 sync_invalid_el1t:
 	handle_invalid_entry  SYNC_INVALID_EL1t
@@ -131,6 +130,6 @@ handle_el1_irq:
 	bl	handle_irq
 	kernel_exit 
 
-// infinite loop when error occurs
 .globl err_hang
 err_hang: b err_hang
+

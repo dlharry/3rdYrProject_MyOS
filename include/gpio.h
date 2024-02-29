@@ -1,11 +1,10 @@
-// user gpio functions
 #pragma once
 
 #include "peripherals/gpio.h"
 
 typedef enum _GpioFunc {
     GFInput = 0,
-    GFOutput =1,
+    GFOutput = 1,
     GFAlt0 = 4,
     GFAlt1 = 5,
     GFAlt2 = 6,

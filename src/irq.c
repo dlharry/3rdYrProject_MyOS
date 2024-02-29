@@ -27,36 +27,42 @@ const char entry_error_messages[16][32] = {
 	"ERROR_INVALID_EL0_32"	
 };
 
-void show_invalid_entry_message(u32 type, u64 esr, u64 address){
-    printf("ERROR CAUGHT: %s - %d, ESR: %X, Address: %X\n",
-    entry_error_messages[type], type, esr, address);
+void show_invalid_entry_message(u32 type, u64 esr, u64 address) {
+    printf("ERROR CAUGHT: %s - %d, ESR: %X, Address: %X\n", 
+        entry_error_messages[type], type, esr, address);
 }
 
-void enable_interrupt_controller(){
+void enable_interrupt_controller() {
     #if RPI_VERSION == 4
         REGS_IRQ->irq0_enable_0 = AUX_IRQ;
-    #else
-        REGS_IRQ->irq0_enable_0 = AUX_IRQ;
+    #endif
+
+    #if RPI_VERSION == 3
+        REGS_IRQ->irq0_enable_1 = AUX_IRQ;
     #endif
 }
 
-void handle_irq(){
+void handle_irq() {
     u32 irq;
-    #if RPI_VERSION == 4
-        REGS_IRQ->irq0_pending_0;
-    #else
-        REGS_IRQ->irq0_pending_0;
-    #endif
 
-    while(irq){
-        if(irq & AUX_IRQ){
-            irq &= ~AUX_IRQ; // loop and remove the bit handled
+#if RPI_VERSION == 4
+    irq = REGS_IRQ->irq0_pending_0;
+#endif
 
-            while((REGS_AUX->mu_iir & 4) == 4){
-                printf("UART RECV: ");
+#if RPI_VERSION == 3
+    irq = REGS_IRQ->irq0_pending_1;
+#endif
+
+    while(irq) {
+        if (irq & AUX_IRQ) {
+            irq &= ~AUX_IRQ;
+
+            while((REGS_AUX->mu_iir & 4) == 4) {
+                printf("UART Recv: ");
                 uart_send(uart_recv());
                 printf("\n");
             }
         }
     }
+
 }
