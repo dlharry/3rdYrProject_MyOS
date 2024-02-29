@@ -1,5 +1,6 @@
 // Written by Hanmin Liu
 #include "mm.h"
+#include "sysregs.h"
 .section ".text.boot" // put the following code in a section namely
 // linker should put this at the start of the kernal image
 .globl _start // execution starts here
@@ -17,6 +18,24 @@ proc_hang:
     b   proc_hang
 
 master:
+    ldr x0, =SCTLR_VALUE_MMU_DISABLED //set to el1
+    msr sctlr_el1, x0
+
+    ldr x0, =HCR_VALUE //aarch64
+    msr hcr_el2, x0
+
+    ldr x0, =SCR_VALUE
+    msr scr_el3, x0
+
+    ldr x0, =SPSR_VALUE
+    msr spsr_el3, x0
+
+    adr x0, el1_entry
+    msr elr_el3, x0
+
+    eret
+
+el1_entry:
     adr x0, bss_begin
     adr x1, bss_end
     sub x1, x1, x0 // bss_size
