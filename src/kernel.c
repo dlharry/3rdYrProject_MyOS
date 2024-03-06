@@ -18,7 +18,7 @@ u32 get_el();
 void kernel_main(){
     uart_init();
     init_printf(0, putc);
-    printf("Hello My OS!\n");
+    printf("UART initiated...\nHello My OS!\n");
 
     irq_init_vectors();
     enable_interrupt_controller();
@@ -29,10 +29,18 @@ void kernel_main(){
     printf("\tRunning on Rpi 4\n");
 #endif
 
-    printf("\nException Level %d\n", get_el());
-
+    printf("\nKernel Exception Level %d\n", get_el());
     printf("\nInitialization Done\n");
+    printf("\nWelcome to Hanmin's Operating System\n");
 
+    printf("Sleeping for 200 ms...\n");
+    timer_sleep(200);
+    printf("Sleeping for 2000 ms...\n");
+    timer_sleep(2000);
+    printf("Sleeping test done.\n");
+
+    printf("\nType something and you shall see response.\n");
+    // test the uart handler
     while(1){
         uart_send(uart_recv());
     }
