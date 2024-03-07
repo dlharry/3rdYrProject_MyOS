@@ -4,6 +4,7 @@
 #include "irq.h"
 #include "timer.h"
 #include "mailbox.h"
+#include "video.h"
 
 // To support Kustaa Nyholm's printf
 void putc(void *p, char c){
@@ -58,6 +59,19 @@ void kernel_main(){
 
     mailbox_generic_command(RPI_FIRMWARE_GET_MAX_TEMPERATURE, 0, &max_temp);
     
+    // hdmi video testing
+    printf("Resolution 480x320\n");
+    video_set_resolution(480, 320, 32);
+
+    printf("Resolution 800x600\n");
+    video_set_resolution(800, 600, 32);
+
+    printf("Resolution 1024x768\n");
+    video_set_resolution(1024, 768, 32);
+
+    printf("Resolution 1920x1080\n");
+    video_set_resolution(1920, 1080, 32);
+
     while(1) {
         u32 cur_temp = 0;
         mailbox_generic_command(RPI_FIRMWARE_GET_TEMPERATURE, 0, &cur_temp);

@@ -178,3 +178,4 @@ enum rpi_firmware_property_tag {
 u32 mailbox_clock_rate(clock_type ct);
 bool mailbox_power_check(u32 type);
 bool mailbox_generic_command(u32 tag_id, u32 id, u32 *value);
+bool mailbox_process(mailbox_tag *tag, u32 tag_size);
