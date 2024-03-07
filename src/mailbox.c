@@ -41,7 +41,9 @@ static u32 property_data[8192] __attribute__((aligned(16)));
 static int mail_box_write(u8 channel, u32 data){
     while(MBX()->status & MAIL_FULL);
 
-    MBX()->write = (data & 0xFFFFFFF0 | (channel & 0xF));
+    MBX()->write = ((data & 0xFFFFFFF0) | (channel & 0xF));
+
+    return 1;
 }
 
 static u32 mail_box_read(u8 channel){
@@ -67,9 +69,9 @@ bool mailbox_process(mailbox_tag *tag, u32 tag_size){
     property_buffer *buff = (property_buffer *)property_data;
     buff->size = buffer_size;
     buff->code = RPI_FIRMWARE_STATUS_REQUEST;
-    property_data((tag_size + 12) / 4 - 1) = RPI_FIRMWARE_PROPERTY_END;
+    property_data[(tag_size + 12) / 4 - 1] = RPI_FIRMWARE_PROPERTY_END;
 
-    mail_box_write(MAIL_TAGS, (u32)(void *)property_data)
+    mail_box_write(MAIL_TAGS, (u32)(void *)property_data);
     int result = mail_box_read(MAIL_TAGS);
     memcpy(tag, property_data + 2, tag_size); // give back to calling structure
     
@@ -84,7 +86,7 @@ bool mailbox_generic_command(u32 tag_id, u32 id, u32 *value){
     mbx.tag.value_length = 0;
     mbx.tag.buffer_size = sizeof(mailbox_generic) - sizeof(mailbox_tag);
 
-    if(!mailbox_process((mailbox_tag)&mbx, sizeof(mbx))){
+    if(!mailbox_process((mailbox_tag *)&mbx, sizeof(mbx))){
         printf("Failed to process: %X\n", tag_id);
         return false;
     }
@@ -101,7 +103,7 @@ u32 mailbox_clock_rate(clock_type ct){
     c.tag.buffer_size = sizeof(c) - sizeof(c.tag);
     c.id = ct;
 
-    mailbox_process((mailbox_tag)&c, sizeof(c));
+    mailbox_process((mailbox_tag *)&c, sizeof(c));
 
     return c.rate;
 }
@@ -110,7 +112,7 @@ bool mailbox_power_check(u32 type) {
     mailbox_power p;
     p.tag.id = RPI_FIRMWARE_GET_DOMAIN_STATE;
     p.tag.value_length = 0;
-    p.tag.buffer_size = sizeof(c) - sizeof(c.tag);
+    p.tag.buffer_size = sizeof(p) - sizeof(p.tag);
     p.id = type;
     p.state = ~0; // check in linux
 
