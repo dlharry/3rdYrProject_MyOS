@@ -36,6 +36,11 @@ master:
     eret
 
 el1_entry:
+    mov sp, #0x80000
+
+    //bl setup_vm
+    //bl enable_mmu
+
     adr x0, bss_begin
     adr x1, bss_end
     sub x1, x1, x0 // bss_size
