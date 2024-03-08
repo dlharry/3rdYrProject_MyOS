@@ -60,17 +60,41 @@ void kernel_main(){
     mailbox_generic_command(RPI_FIRMWARE_GET_MAX_TEMPERATURE, 0, &max_temp);
     
     // hdmi video testing
-    printf("Resolution 480x320\n");
-    video_set_resolution(480, 320, 32);
+    video_init();
 
-    printf("Resolution 800x600\n");
-    video_set_resolution(800, 600, 32);
-
+    printf("WITHOUT DMA...\n");
+    video_set_dma(false);
+    // 32 bit
+    printf("Resolution 1900x1200\n");
+    video_set_resolution(1900, 1200, 32);
     printf("Resolution 1024x768\n");
     video_set_resolution(1024, 768, 32);
+    printf("Resolution 800x600\n");
+    video_set_resolution(800, 600, 32);
+    // 8 bit
+    printf("Resolution 1900x1200\n");
+    video_set_resolution(1900, 1200, 8);
+    printf("Resolution 1024x768\n");
+    video_set_resolution(1024, 768, 8);
+    printf("Resolution 800x600\n");
+    video_set_resolution(800, 600, 8);
 
-    printf("Resolution 1920x1080\n");
-    video_set_resolution(1920, 1080, 32);
+    printf("WITH DMA...\n");
+    video_set_dma(true);
+    //32 bit
+    printf("Resolution 1900x1200\n");
+    video_set_resolution(1900, 1200, 32);
+    printf("Resolution 1024x768\n");
+    video_set_resolution(1024, 768, 32);
+    printf("Resolution 800x600\n");
+    video_set_resolution(800, 600, 32);
+    printf("Resolution 1900x1200\n");
+    // 8 bit
+    video_set_resolution(1900, 1200, 8);
+    printf("Resolution 1024x768\n");
+    video_set_resolution(1024, 768, 8);
+    printf("Resolution 800x600\n");
+    video_set_resolution(800, 600, 8);
 
     while(1) {
         u32 cur_temp = 0;
