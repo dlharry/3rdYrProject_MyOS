@@ -1,5 +1,7 @@
 #include "common.h"
 #include "mini_uart.h"
+#include "uart.h"
+#include "debug.h"
 #include "printf.h"
 #include "irq.h"
 #include "timer.h"
@@ -18,9 +20,11 @@ void putc(void *p, char c){
 u32 get_el();
 
 void kernel_main(){
-    uart_init();
+    uart_init(); // mini uart
+    init_uart(); // uart
     init_printf(0, putc);
     printf("UART initiated...\nHello My OS!\n");
+    ASSERT(1); // test assert
 
     irq_init_vectors();
     enable_interrupt_controller();
