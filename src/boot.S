@@ -18,13 +18,18 @@ proc_hang:
     b   proc_hang
 
 master:
+    // mrs x0, currentel // if not el2, consider as wrong
+    // lsr x0, x0, #2
+    // cmp x0, #2
+    // bne proc_hang
+
     ldr x0, =SCTLR_VALUE_MMU_DISABLED //set to el1
     msr sctlr_el1, x0
 
-    ldr x0, =HCR_VALUE //aarch64
+    ldr x0, =HCR_VALUE //HCR_EL2 hypervisor configuration register,
     msr hcr_el2, x0
 
-    ldr x0, =SCR_VALUE
+    ldr x0, =SCR_VALUE // system control el1
     msr scr_el3, x0
 
     ldr x0, =SPSR_VALUE

@@ -24,11 +24,18 @@ void kernel_main(){
     init_uart(); // uart
     init_printf(0, putc);
     printf("UART initiated...\nHello My OS!\n");
+
     ASSERT(1); // test assert
 
     irq_init_vectors();
     enable_interrupt_controller();
     irq_enable();
+
+    // test Data abort exception
+    // char *p = (char*)0xffff000000000000; 
+    // *p = 1;
+    // printf("This message should not be printed\n");
+
     timer_init();
 
 #if RPI_VERSION == 4
