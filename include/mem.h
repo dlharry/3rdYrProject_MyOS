@@ -13,3 +13,7 @@ int memcmp(void *src1, void *src2, u32 size);
 #define GPU_MEM_BASE	GPU_UNCACHED_BASE
 
 #define BUS_ADDRESS(addr)	(((addr) & ~0xC0000000) | GPU_MEM_BASE)
+
+void *get_free_pages(int num_pages);
+void *allocate_memory(int bytes);
+void free_memory(void *base);

@@ -7,6 +7,7 @@
 #include "timer.h"
 #include "mailbox.h"
 #include "video.h"
+#include "mem.h"
 
 // To support Kustaa Nyholm's printf
 void putc(void *p, char c){
@@ -18,6 +19,23 @@ void putc(void *p, char c){
 }
 
 u32 get_el();
+
+struct align_check1 {
+    u8 a;
+    u8 b;
+    u8 c;
+    //u8 padding;
+    u32 d;
+};
+
+struct align_check2 {
+    u8 a;
+    u8 b;
+    u8 c;
+    u32 d;
+} PACKED;
+
+u8 buffer[] = {0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70};
 
 void kernel_main(){
     uart_init(); // mini uart
@@ -41,6 +59,28 @@ void kernel_main(){
 #if RPI_VERSION == 4
     printf("\tRunning on Rpi 4\n");
 #endif
+
+#if INIT_MMU == 1
+    printf("Initialized MMU\n");
+#endif
+
+    printf("ALIGN CHECK\n");
+
+    struct align_check1 ac1;
+    memcpy(&ac1, buffer, 7);
+    printf("UNPACKED: A: %X, B: %X, C: %X, D: %X\n", ac1.a, ac1.b, ac1.c, ac1.d);
+
+    struct align_check2 ac2;
+    memcpy(&ac2, buffer, 7);
+    printf("PACKED: A: %X, B: %X, C: %X, D: %X\n", ac2.a, ac2.b, ac2.c, ac2.d);
+
+    void *p1 = get_free_pages(10);
+    void *p2 = get_free_pages(4);
+    void *p3 = allocate_memory(20 * 4096 + 1);
+
+    free_memory(p1);
+    free_memory(p2);
+    free_memory(p3);
 
     printf("\nKernel Exception Level %d\n", get_el());
     printf("\nInitialization Done\n");
