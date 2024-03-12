@@ -1,6 +1,6 @@
-#include "handler.h"
+#include "entry.h"
 
-.macro kernel_entry // save registers
+.macro kernel_entry
     sub sp, sp, #S_FRAME_SIZE
     stp x0, x1, [sp, #16 * 0]
     stp x2, x3, [sp, #16 * 1]
@@ -20,7 +20,7 @@
 	str	x30, [sp, #16 * 15] 
 .endm
 
-.macro kernel_exit // restore saved registers
+.macro kernel_exit
     ldp x0, x1, [sp, #16 * 0]
     ldp x2, x3, [sp, #16 * 1]
     ldp	x4, x5, [sp, #16 * 2]
@@ -46,12 +46,12 @@
 	mov	x0, #\type
 	mrs	x1, esr_el1
 	mrs	x2, elr_el1
-	bl	show_invalid_entry_message // implement in c
+	bl	show_invalid_entry_message
 	b	err_hang
 .endm
 
 .macro	ventry	label
-.align	7 // .balign 0x80
+.align	7
     b	\label
 .endm
 

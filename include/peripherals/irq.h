@@ -40,6 +40,10 @@ struct arm_irq_regs_2837 {
     reg32 irq0_disable_0;
 };
 
+#if RPI_VERSION == 3
+    typedef struct arm_irq_regs_2837 arm_irq_regs;
+#endif
+
 #if RPI_VERSION == 4
     typedef struct arm_irq_regs_2711 arm_irq_regs;
 #endif

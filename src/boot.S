@@ -1,6 +1,5 @@
 // Written by Hanmin Liu
 #include "mm.h"
-#include "mmu.h"
 #include "sysregs.h"
 .section ".text.boot" // put the following code in a section namely
 // linker should put this at the start of the kernal image
@@ -19,33 +18,17 @@ proc_hang:
     b   proc_hang
 
 master:
-    // mrs x0, currentel // if not el2, consider as wrong
-    // lsr x0, x0, #2
-    // cmp x0, #2
-    // bne proc_hang
-
     ldr x0, =SCTLR_VALUE_MMU_DISABLED //set to el1
     msr sctlr_el1, x0
 
-    ldr x0, =HCR_VALUE //HCR_EL2 hypervisor configuration register,
+    ldr x0, =HCR_VALUE //aarch64
     msr hcr_el2, x0
 
-    ldr x0, =SCR_VALUE // system control el1
+    ldr x0, =SCR_VALUE
     msr scr_el3, x0
 
     ldr x0, =SPSR_VALUE
     msr spsr_el3, x0
-
-    #if INIT_MMU == 1
-        ldr x0, =CPACR_EL1_VAL
-        msr CPACR_EL1, x0
-
-        ldr x0, =TCR_EL1_VAL
-        msr TCR_EL1, x0
-
-        ldr x0, =MAIR_VALUE
-        msr MAIR_EL1, x0
-    #endif
 
     adr x0, el1_entry
     msr elr_el3, x0
@@ -53,33 +36,11 @@ master:
     eret
 
 el1_entry:
-    mov sp, #LOW_MEMORY
-
-    //bl setup_vm
-    //bl enable_mmu
-
     adr x0, bss_begin
     adr x1, bss_end
     sub x1, x1, x0 // bss_size
     bl memzero
 
-    #if INIT_MMU == 1
-        bl init_mmu
-
-        adrp x0, id_pgd
-        msr ttbr0_el1, x0
-
-        mrs x0, sctlr_el1
-        mov x1, #SCTLR_MMU_ENABLED
-        orr x0, x0, x1
-        msr sctlr_el1, x0
-    #endif
-
+    mov sp, #LOW_MEMORY
     bl kernel_main
-    
     b proc_hang
-
-.globl id_pgd_addr
-id_pgd_addr:
-    adrp x0, id_pgd
-    ret

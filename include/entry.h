@@ -22,4 +22,4 @@
 #define ERROR_INVALID_EL0_32	15 
 
 //stack frame size
-#define S_FRAME_SIZE			256 // 32*8
+#define S_FRAME_SIZE			256
