@@ -6,6 +6,8 @@
 #include "fb.h"
 #include "breakout.h"
 
+char uart_input_char_from_irq;
+
 // To support Kustaa Nyholm's printf
 void putc(void *p, char c){
     if(c == '\n'){
@@ -22,18 +24,23 @@ void kernel_main(){
     init_printf(0, putc);
     printf("UART initiated...\nHello My OS!\n");
 
+    uart_input_char_from_irq = 0;
+
     irq_init_vectors();
     enable_interrupt_controller();
     irq_enable();
     timer_init();
+    fb_init();
+
 
 #if RPI_VERSION == 4
     printf("\tRunning on Rpi 4\n");
 #endif
 
     printf("\nKernel Exception Level %d\n", get_el());
-    printf("\nInitialization Done\n");
-    printf("\nWelcome to Hanmin's Operating System\n");
+    printf("\nKernel Initialization Done\n");
+    printf("\nWelcome to Hanmin's 'Operating System'\n");
+    printf("\nType something and you shall see response.\n");
 
     printf("Sleeping for 200 ms...\n");
     timer_sleep(200);
@@ -43,8 +50,4 @@ void kernel_main(){
 
     printf("game Initializing\n");
     breakout();
-
-    printf("\nType something and you shall see response.\n");
-    uart_update();
-
 }

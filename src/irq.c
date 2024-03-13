@@ -5,6 +5,7 @@
 #include "peripherals/aux.h"
 #include "mini_uart.h"
 #include "timer.h"
+#include "irq.h"
 
 const char entry_error_messages[16][32] = {
 	"SYNC_INVALID_EL1t",
@@ -44,26 +45,25 @@ void enable_interrupt_controller() {
     #endif
 }
 
+u32 is_iir_ready(){
+    return (REGS_AUX->mu_iir & 4) == 4;
+}
+
 void handle_irq() {
     u32 irq;
 
-#if RPI_VERSION == 4
     irq = REGS_IRQ->irq0_pending_0;
-#endif
-
-#if RPI_VERSION == 3
-    irq = REGS_IRQ->irq0_pending_1;
-#endif
 
     while(irq) {
         // uart
         if (irq & AUX_IRQ) {
             irq &= ~AUX_IRQ;
 
-            while((REGS_AUX->mu_iir & 4) == 4) {
-                printf("UART Recv: ");
-                uart_send(uart_recv());
-                printf("\n");
+            while(is_iir_ready()) {
+                uart_input_char_from_irq = uart_recv();
+                printf("UART Recv: %c\n", uart_input_char_from_irq);
+                // uart_send(ch);
+                // return ch;
             }
         }
 
@@ -78,7 +78,8 @@ void handle_irq() {
             irq &= ~SYS_TIMER_IRQ_3;
             handle_timer_3();
         }
-        printf("checking irq");
+        // printf("checking irq\n");
+        // return 0;
     }
 
 }

@@ -2,6 +2,7 @@
 #include "utils.h"
 #include "peripherals/aux.h"
 #include "mini_uart.h"
+#include "printf.h"
 
 #define TXD 14
 #define RXD 15
@@ -56,7 +57,9 @@ void uart_drainOutputQueue() {
 char uart_recv(){
     while(!(uart_isReadByteReady())); // loop until lsr set
 
-    return REGS_AUX->mu_io & 0xFF;
+    // return REGS_AUX->mu_io & 0xFF;
+    printf("uartoutputqueue:[ %s ]\n", uart_output_queue);
+    return REGS_AUX->mu_io;
 }
 
 void uart_send_string(char *str){
@@ -73,7 +76,7 @@ u32 uart_isOutputQueueEmpty() {
     return uart_output_queue_read == uart_output_queue_write;
 }
 
-u32 uart_isReadByteReady()  { return REGS_AUX->mu_lsr & 1; }
+u32 uart_isReadByteReady()  { return REGS_AUX->mu_lsr & 0x01; }
 u32 uart_isWriteByteReady() { return REGS_AUX->mu_lsr & 0x20; }
 
 

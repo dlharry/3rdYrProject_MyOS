@@ -3,6 +3,8 @@
 #include "peripherals/base.h"
 #include "timer.h"
 #include "printf.h"
+#include "irq.h"
+#include "peripherals/irq.h"
 
 // The screen
 #define WIDTH         1920
@@ -77,12 +79,11 @@ struct Object *detectCollision(struct Object *with, int xoff, int yoff)
 }
 
 // KEY HANDLER
-
-unsigned char getUart()
-{
-    unsigned char ch = 0;
-
-    if (uart_isReadByteReady()) ch = uart_recv();
+char getUart(){
+    char ch = 0;
+    if (uart_input_char_from_irq) ch = uart_input_char_from_irq;
+    printf("breakout received %c\n", ch);
+    uart_input_char_from_irq = 0;
     return ch;
 }
 
@@ -162,39 +163,59 @@ void drawScoreboard(int score, int lives)
 }
 
 void breakout_init(){
-    uart_init();
-    fb_init();
-
     initBricks();
     initBall();
     initPaddle();
     drawScoreboard(points, lives);
+    uart_input_char_from_irq = 0;
 }
+
+int initial_v_x = 3;
+int initial_v_y = 9;
 
 void breakout() {
     breakout_init();
     struct Object *foundObject;
     unsigned char ch = 0;
 
-    int velocity_x = 1;
-    int velocity_y = 3;
+    int velocity_x = initial_v_x;
+    int velocity_y = initial_v_y;
 
-    printf("Initialization done\n");
-    while (!getUart()); // Wait for keypress to start game
+    printf("Game Initialization done\n");
+
+    while(1){
+        if (uart_input_char_from_irq) {
+            ch = uart_input_char_from_irq;
+            printf("breakout received %c\n", ch);
+            uart_input_char_from_irq = 0;   
+            break;
+        }
+    }
+    // Wait for keypress to start game
+    // while (!getUart()); 
+    
     printf("Game started\n");
      
     while (lives > 0 && bricks > 0) {
+        printf("fresh\n");
         // Get any waiting input and flush the buffer
-        if ( ( ch = getUart() ) ) {
+        if (uart_input_char_from_irq) ch = uart_input_char_from_irq;
+        printf("main game loop received %c\n", ch);
+        uart_input_char_from_irq = 0;  
+        
+        // if ( ch = getUart() ) {
+            // if (ch == 0) continue;
             if (ch == 'l') if (paddle->x + paddle->width + (paddle->width / 2) <= WIDTH-MARGIN) moveObject(paddle, paddle->width / 2, 0);
             if (ch == 'h') if (paddle->x >= MARGIN+(paddle->width / 2)) moveObject(paddle, -(paddle->width / 2), 0);
-        }
-        uart_loadOutputFifo();
+        // }
+        // uart_loadOutputFifo();
+        ch = 0;
 
         // Are we going to hit anything?
         foundObject = detectCollision(ball, velocity_x, velocity_y);
 
         if (foundObject) {
+            printf("Collision detected\n");
             if (foundObject == paddle) {
                 velocity_y = -velocity_y;
             // Are we going to hit the side of the paddle
@@ -208,7 +229,7 @@ void breakout() {
             }
         }
 
-        timer_sleep(4000); // Wait a little...
+        timer_sleep(40); // Wait a little...
         moveObject(ball, velocity_x, velocity_y);
 
         // Check we're in the game arena still
@@ -228,6 +249,8 @@ void breakout() {
         } else if (ball->y <= MARGIN) {
             velocity_y = -velocity_y;
         }
+
+        
     }
 
     int zoom = WIDTH/192;
@@ -239,5 +262,4 @@ void breakout() {
 
     printf("game ended\n");
     
-    while (1);
 }
