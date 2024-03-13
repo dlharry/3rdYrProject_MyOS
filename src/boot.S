@@ -1,7 +1,11 @@
 // Written by Hanmin Liu
 #include "mm.h"
 #include "sysregs.h"
+#include "mmu.h"
+
 .section ".text.boot" // put the following code in a section namely
+
+
 // linker should put this at the start of the kernal image
 .globl _start // execution starts here
 _start:
@@ -30,6 +34,17 @@ master:
     ldr x0, =SPSR_VALUE
     msr spsr_el3, x0
 
+#if INIT_MMU == 1
+    ldr x0, =CPACR_EL1_VAL
+    msr CPACR_EL1, x0
+
+    ldr x0, =TCR_EL1_VAL
+    msr TCR_EL1, x0
+
+    ldr x0, =MAIR_VALUE
+    msr MAIR_EL1, x0
+#endif
+
     adr x0, el1_entry
     msr elr_el3, x0
 
@@ -42,5 +57,24 @@ el1_entry:
     bl memzero
 
     mov sp, #LOW_MEMORY
+
+    #if INIT_MMU == 1
+    bl init_mmu
+
+    adrp x0, id_pgd // put in ttbr0
+    msr ttbr0_el1, x0
+
+    mrs x0, sctlr_el1
+    mov x1, #SCTLR_MMU_ENABLED
+    orr x0, x0, x1
+    msr sctlr_el1, x0
+#endif
+
     bl kernel_main
     b proc_hang
+
+// identity page table address
+.globl id_pgd_addr
+id_pgd_addr:
+    adrp x0, id_pgd
+    ret
