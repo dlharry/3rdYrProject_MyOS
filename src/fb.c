@@ -6,8 +6,7 @@
 unsigned int width, height, pitch, isrgb;
 unsigned char *fb;
 
-void fb_init()
-{
+void fb_init() {
     mbox[0] = 35*4; // Length of message in bytes
     mbox[1] = MBOX_REQUEST;
 
@@ -55,22 +54,20 @@ void fb_init()
     // Check call is successful and we have a pointer with depth 32
     if (mbox_call(MBOX_CH_PROP) && mbox[20] == 32 && mbox[28] != 0) {
         mbox[28] &= 0x3FFFFFFF; // Convert GPU address to ARM address
-        width = mbox[10];       // Actual physical width
-        height = mbox[11];      // Actual physical height
+        width = mbox[10];       // physical width
+        height = mbox[11];      // physical height
         pitch = mbox[33];       // Number of bytes per line
         isrgb = mbox[24];       // Pixel order
         fb = (unsigned char *)((long)mbox[28]);
     }
 }
 
-void drawPixel(int x, int y, unsigned char attr)
-{
+void drawPixel(int x, int y, unsigned char attr) {
     int offs = (y * pitch) + (x * 4);
     *((unsigned int*)(fb + offs)) = vgapal[attr & 0x0f];
 }
 
-void drawRect(int x1, int y1, int x2, int y2, unsigned char attr, int fill)
-{
+void drawRect(int x1, int y1, int x2, int y2, unsigned char attr, int fill) {
     int y=y1;
 
     while (y <= y2) {
@@ -84,8 +81,7 @@ void drawRect(int x1, int y1, int x2, int y2, unsigned char attr, int fill)
     }
 }
 
-void drawLine(int x1, int y1, int x2, int y2, unsigned char attr)  
-{  
+void drawLine(int x1, int y1, int x2, int y2, unsigned char attr) {
     int dx, dy, p, x, y;
 
     dx = x2-x1;
@@ -107,8 +103,7 @@ void drawLine(int x1, int y1, int x2, int y2, unsigned char attr)
     }
 }
 
-void drawCircle(int x0, int y0, int radius, unsigned char attr, int fill)
-{
+void drawCircle(int x0, int y0, int radius, unsigned char attr, int fill) {
     int x = radius;
     int y = 0;
     int err = 0;
@@ -141,8 +136,7 @@ void drawCircle(int x0, int y0, int radius, unsigned char attr, int fill)
     }
 }
 
-void drawChar(unsigned char ch, int x, int y, unsigned char attr, int zoom)
-{
+void drawChar(unsigned char ch, int x, int y, unsigned char attr, int zoom) {
     unsigned char *glyph = (unsigned char *)&font + (ch < FONT_NUMGLYPHS ? ch : 0) * FONT_BPG;
 
     for (int i=1;i<=(FONT_HEIGHT*zoom);i++) {
@@ -156,8 +150,7 @@ void drawChar(unsigned char ch, int x, int y, unsigned char attr, int zoom)
     }
 }
 
-void drawString(int x, int y, char *s, unsigned char attr, int zoom)
-{
+void drawString(int x, int y, char *s, unsigned char attr, int zoom) {
     while (*s) {
        if (*s == '\r') {
           x = 0;
@@ -171,8 +164,7 @@ void drawString(int x, int y, char *s, unsigned char attr, int zoom)
     }
 }
 
-void moveRect(int oldx, int oldy, int width, int height, int shiftx, int shifty, unsigned char attr)
-{
+void moveRect(int oldx, int oldy, int width, int height, int shiftx, int shifty, unsigned char attr) {
     unsigned int newx = oldx + shiftx, newy = oldy + shifty;
     unsigned int xcount = 0, ycount = 0;
     unsigned int bitmap[width][height]; // This is very unsafe if it's too big for the stack...
