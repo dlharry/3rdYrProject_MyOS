@@ -23,11 +23,7 @@ void uart_init(){
     REGS_AUX->mu_ier = 0xD;
     REGS_AUX->mu_lcr = 3;
     REGS_AUX->mu_mcr = 0;
-
-#if RPI_VERSION == 4
     REGS_AUX->mu_baud = 541; // = 115200 @ 500 Mhz
-#endif
-
     REGS_AUX->mu_cntr = 3;
 
     // uart_send('\r'); // test 

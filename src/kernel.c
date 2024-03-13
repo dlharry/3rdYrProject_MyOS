@@ -1,12 +1,13 @@
 #include "common.h"
 #include "mini_uart.h"
 #include "printf.h"
+#include "debug.h"
 #include "irq.h"
 #include "timer.h"
 #include "fb.h"
 #include "breakout.h"
 
-char uart_input_char_from_irq;
+char uart_input_char_from_irq; // Passing uart interrupt catching characters
 
 // To support Kustaa Nyholm's printf
 void putc(void *p, char c){
@@ -23,6 +24,7 @@ void kernel_main(){
     uart_init();
     init_printf(0, putc);
     printf("UART initiated...\nHello My OS!\n");
+    ASSERT(0); // test assert
 
     uart_input_char_from_irq = 0;
 

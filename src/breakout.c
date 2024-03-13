@@ -13,7 +13,7 @@
 #define VIRTWIDTH     (WIDTH-(2*MARGIN))
 #define FONT_BPG      8
 
-// For the bricks
+// Bricks
 #define ROWS          5
 #define COLS          10
 unsigned int bricks = ROWS * COLS;
@@ -22,9 +22,7 @@ unsigned int bricks = ROWS * COLS;
 #define NUM_LIVES     3
 
 // OBJECT TRACKING
-
-struct Object
-{
+struct Object {
     unsigned int type;
     unsigned int x;
     unsigned int y;
@@ -48,8 +46,7 @@ struct Object *paddle;
 int lives = NUM_LIVES;
     int points = 0;
 
-void removeObject(struct Object *object)
-{
+void removeObject(struct Object *object) {
     drawRect(object->x, object->y, object->x + object->width, object->y + object->height, 0, 1);
     object->alive = 0;
 }
