@@ -150,21 +150,20 @@ void drawScoreboard(int score, int lives)
 }
 
 void breakout_init(){
-    clear_screen();
+    //clear_screen();
     initBricks();
     initBall();
     initPaddle();
     drawScoreboard(points, lives);
     uart_input_char_from_irq = 0;
     printf("Game Initialization done\n");
-    print_to_screen("Press ANY key to start\n");
+    //print_to_screen("Press ANY key to start\n");
 }
 
 int initial_v_x = 3;
 int initial_v_y = 9;
 
 void breakout() {
-    breakout_init();
     struct Object *foundObject;
     unsigned char ch = 0;
 
@@ -181,6 +180,8 @@ void breakout() {
             break;
         }
     }
+    breakout_init();
+    timer_sleep(1000); // wait for initilization
     // Wait for keypress to start game
     // while (!getUart()); 
     
@@ -189,8 +190,11 @@ void breakout() {
     while (lives > 0 && bricks > 0) {
         printf("fresh\n");
         // Get any waiting input and flush the buffer
-        if (uart_input_char_from_irq == 'l' || uart_input_char_from_irq == 'h') ch = uart_input_char_from_irq;
-        printf("main game loop received %s\n", ch);
+        if (uart_input_char_from_irq == 'l' || uart_input_char_from_irq == 'h'){
+            ch = uart_input_char_from_irq;
+            printf("main game loop received %s\n", ch);
+        } 
+        
         uart_input_char_from_irq = 0;  
         
         // if ( ch = getUart() ) {

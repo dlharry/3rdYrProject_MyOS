@@ -165,8 +165,8 @@ void drawString(int x, int y, char *s, unsigned char attr, int zoom) {
         }
         s++;
     }
-    output_loc_x = x;
-    output_loc_y = y;
+    // output_loc_x = x;
+    // output_loc_y = y;
 }
 
 void moveRect(int oldx, int oldy, int width, int height, int shiftx, int shifty, unsigned char attr) {

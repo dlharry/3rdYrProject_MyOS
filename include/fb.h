@@ -9,6 +9,6 @@ void moveRect(int oldx, int oldy, int width, int height, int shiftx, int shifty,
 // void wait_msec(unsigned int n);
 
 
-extern int output_loc_x;
-extern int output_loc_y;
+// extern int output_loc_x;
+// extern int output_loc_y;
 
