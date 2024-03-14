@@ -5,16 +5,10 @@
 #include "printf.h"
 #include "irq.h"
 #include "peripherals/irq.h"
-#include "screen.h"
 #include "print_to_screen.h"
+#include "breakout.h"
 
-// Bricks
-#define ROWS          5
-#define COLS          10
 unsigned int bricks = ROWS * COLS;
-
-// Gameplay
-#define NUM_LIVES     3
 
 // OBJECT TRACKING
 struct Object {
@@ -39,7 +33,7 @@ struct Object *ball;
 struct Object *paddle;
 
 int lives = NUM_LIVES;
-    int points = 0;
+int points = 0;
 
 void removeObject(struct Object *object) {
     drawRect(object->x, object->y, object->x + object->width, object->y + object->height, 0, 1);
@@ -150,7 +144,9 @@ void drawScoreboard(int score, int lives)
 }
 
 void breakout_init(){
-    //clear_screen();
+    lives = NUM_LIVES;
+    points = 0;
+    clear_screen();
     initBricks();
     initBall();
     initPaddle();
@@ -163,7 +159,7 @@ void breakout_init(){
 int initial_v_x = 3;
 int initial_v_y = 9;
 
-void breakout() {
+int breakout() {
     struct Object *foundObject;
     unsigned char ch = 0;
 
@@ -247,12 +243,13 @@ void breakout() {
         
     }
 
-    int zoom = WIDTH/192;
-    int strwidth = 10 * FONT_BPG * zoom;
-    int strheight = FONT_BPG * zoom;
-
-    if (bricks == 0) drawString((WIDTH/2)-(strwidth/2), (HEIGHT/2)-(strheight/2), "Well done!", 0x02, zoom);
-    else drawString((WIDTH/2)-(strwidth/2), (HEIGHT/2)-(strheight/2), "Game over!", 0x04, zoom);
+    if (bricks == 0){
+        drawString((WIDTH/2)-(END_WIDTH/2), (HEIGHT/2)-(END_HEIGHT/2), "Well done!", 0x02, END_ZOOM);
+        return points+lives;
+    }else{
+        drawString((WIDTH/2)-(END_WIDTH/2), (HEIGHT/2)-(END_HEIGHT/2), "Game over!", 0x04, END_ZOOM);
+        return -1;
+    } 
 
     printf("game ended\n");
     
