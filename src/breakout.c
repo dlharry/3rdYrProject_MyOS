@@ -5,13 +5,8 @@
 #include "printf.h"
 #include "irq.h"
 #include "peripherals/irq.h"
-
-// The screen
-#define WIDTH         1920
-#define HEIGHT        1080
-#define MARGIN        30
-#define VIRTWIDTH     (WIDTH-(2*MARGIN))
-#define FONT_BPG      8
+#include "screen.h"
+#include "print_to_screen.h"
 
 // Bricks
 #define ROWS          5
@@ -51,15 +46,13 @@ void removeObject(struct Object *object) {
     object->alive = 0;
 }
 
-void moveObject(struct Object *object, int xoff, int yoff)
-{
+void moveObject(struct Object *object, int xoff, int yoff) {
     moveRect(object->x, object->y, object->width, object->height, xoff, yoff, 0x00);
     object->x = object->x + xoff;
     object->y = object->y + yoff;
 }
 
-struct Object *detectCollision(struct Object *with, int xoff, int yoff)
-{
+struct Object *detectCollision(struct Object *with, int xoff, int yoff) {
     for (int i=0; i<numobjs;i++) {
 	if (&objects[i] != with && objects[i].alive == 1) {
 	   if (with->x + xoff > objects[i].x + objects[i].width || objects[i].x > with->x + xoff + with->width) {
@@ -86,8 +79,7 @@ char getUart(){
 
 // OBJECT INITIALISERS
 
-void initBricks()
-{
+void initBricks() {
     int brickwidth = 32;
     int brickheight = 8;
     int brickspacer = 20;
@@ -115,8 +107,7 @@ void initBricks()
      }
 }
 
-void initBall()
-{
+void initBall() {
     int ballradius = 15;
 
     drawCircle(WIDTH/2, HEIGHT/2, ballradius, 0x55, 1);
@@ -131,8 +122,7 @@ void initBall()
     numobjs++;
 }
 
-void initPaddle()
-{
+void initPaddle() {
     int paddlewidth = 80;
     int paddleheight = 20;
 
@@ -160,11 +150,14 @@ void drawScoreboard(int score, int lives)
 }
 
 void breakout_init(){
+    clear_screen();
     initBricks();
     initBall();
     initPaddle();
     drawScoreboard(points, lives);
     uart_input_char_from_irq = 0;
+    printf("Game Initialization done\n");
+    print_to_screen("Press ANY key to start\n");
 }
 
 int initial_v_x = 3;
@@ -178,7 +171,7 @@ void breakout() {
     int velocity_x = initial_v_x;
     int velocity_y = initial_v_y;
 
-    printf("Game Initialization done\n");
+    
 
     while(1){
         if (uart_input_char_from_irq) {
@@ -196,8 +189,8 @@ void breakout() {
     while (lives > 0 && bricks > 0) {
         printf("fresh\n");
         // Get any waiting input and flush the buffer
-        if (uart_input_char_from_irq) ch = uart_input_char_from_irq;
-        printf("main game loop received %c\n", ch);
+        if (uart_input_char_from_irq == 'l' || uart_input_char_from_irq == 'h') ch = uart_input_char_from_irq;
+        printf("main game loop received %s\n", ch);
         uart_input_char_from_irq = 0;  
         
         // if ( ch = getUart() ) {
